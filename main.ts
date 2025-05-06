@@ -665,7 +665,7 @@ export default class AliSyncPlugin extends Plugin {
 			const remoteFile = await plugin.aliClient.searchFile((plugin.settings.remoteFolderName + '/' + file.path).replaceAll('\\', '/').replaceAll('/+', '/'));
 			if (remoteFile) {
 				await plugin.aliClient.deleteFile(remoteFile.file_id);
-				console.error(`remote file ${file.path} deleted`);
+				console.log(`remote file ${file.path} deleted`);
 			}
 		} catch (error) {
 			console.error(`Failed to delete remote file ${file.path}:`, error);
