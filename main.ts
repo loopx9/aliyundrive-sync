@@ -1,4 +1,5 @@
 import { Plugin, Notice, App, PluginSettingTab, Setting, TFile, TAbstractFile, setIcon, getIcon, requestUrl } from 'obsidian';
+import { createHash } from 'crypto';
 
 import * as path from 'path';
 
@@ -419,7 +420,7 @@ interface QueueItem<T = any> {
 
 class ThrottleQueue {
 	delay: number;
-	forceStop: boolean = false;
+	forceStop = false;
 	private queue: QueueItem[];
 	private isProcessing: boolean;
 	private lastExecuted: number;
@@ -490,7 +491,7 @@ export default class AliSyncPlugin extends Plugin {
 
 		//点击状态栏时打开插件设置页面
 		this.statusBarItem.onclick = () => {
-			let setting = this.app.setting;
+			const setting = this.app.setting;
 			setting.open();
 			setting.openTabById('aliyun-sync');
 		};
@@ -990,8 +991,8 @@ class AliSyncSettingTab extends PluginSettingTab {
 						.onChange(async (value) => {
 							this.plugin.settings.encryptionKey = value;
 
-							//修改密钥后随机生成一个IV固定使用, 方便比对文件SHA1判断文件内容是否发生变化
-							this.plugin.settings.encryptionIv = crypto.randomUUID().replaceAll('-', '');
+							//IV关联key,截取其SHA-256的其中32位字节，固定使用，方便比对文件SHA1判断文件内容是否发生变化
+							this.plugin.settings.encryptionIv = createHash('sha256').update(value).digest('hex').slice(30, 62).toUpperCase();
 							await this.plugin.saveSettings();
 						});
 			});
