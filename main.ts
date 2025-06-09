@@ -584,7 +584,7 @@ export default class AliSyncPlugin extends Plugin {
 	}
 
 	private async handleFileDelete(file: TAbstractFile) {
-		if (!this.aliClient || !this.isAuthorized || !this.remoteRootFolder || !(file instanceof TFile)) {
+		if (!this.aliClient || !this.isAuthorized || !this.remoteRootFolder ) {
 			return;
 		}
 
@@ -594,7 +594,7 @@ export default class AliSyncPlugin extends Plugin {
 	}
 
 	private async handleFileRename(file: TAbstractFile, oldPath: string) {
-		if (!this.aliClient || !this.isAuthorized || !this.remoteRootFolder || !(file instanceof TFile)) {
+		if (!this.aliClient || !this.isAuthorized || !this.remoteRootFolder) {
 			return;
 		}
 
