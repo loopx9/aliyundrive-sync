@@ -376,15 +376,16 @@ class AliDriveClientImpl implements AliDriveClient {
 	}
 
 	async searchFile(filePath: string): Promise<AliDriveFile | null> {
+		const file_path = ('/' + filePath).replaceAll('/+', '/');
 		const body: any = {
 			drive_id: this.driverId,
-			file_path: ('/' + filePath).replaceAll('/+', '/'),
+			file_path: file_path,
 		};
 		try {
 			const response = await this.request<AliDriveFile>('/adrive/v1.0/openFile/get_by_path', body);
 			return response;
 		} catch (error) {
-			console.error('找不到文件:', filePath);
+			console.error('找不到文件:', file_path);
 			return null;
 		}
 	}
@@ -584,7 +585,7 @@ export default class AliSyncPlugin extends Plugin {
 	}
 
 	private async handleFileDelete(file: TAbstractFile) {
-		if (!this.aliClient || !this.isAuthorized || !this.remoteRootFolder ) {
+		if (!this.aliClient || !this.isAuthorized || !this.remoteRootFolder) {
 			return;
 		}
 
@@ -875,7 +876,13 @@ export default class AliSyncPlugin extends Plugin {
 		}
 
 		const encryptedContent = await this.aliClient.downloadFile(remoteFile.file_id);
-		const fileContent = this.settings.encryptionKey ? await EncryptionUtil.decryptBuffer(encryptedContent, this.settings.encryptionKey) : encryptedContent;
+		const fileContent = encryptedContent;
+		try {
+			const fileContent = this.settings.encryptionKey ? await EncryptionUtil.decryptBuffer(encryptedContent, this.settings.encryptionKey) : encryptedContent;
+		} catch (error) {
+			console.error(`failed to decrypt: ${localPath}`);
+			//const fileContent = encryptedContent;
+		}
 
 		await this.app.vault.adapter.writeBinary(localPath, new Uint8Array(fileContent));
 		console.log(`Downloaded remote file: ${relativePath}`);
